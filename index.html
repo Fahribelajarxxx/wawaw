@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TaskFlow Mobile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #f5f7fa;
+            --card: #ffffff;
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: 80px;
+            position: relative;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--card);
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* STATS BAR */
+        .stats-bar {
+            display: flex;
+            padding: 16px;
+            gap: 12px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .stats-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .stat-item {
+            flex: 1;
+            min-width: 100px;
+            background: var(--card);
+            padding: 16px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* SEARCH */
+        .search-box {
+            padding: 0 16px 16px;
+        }
+
+        .search-container {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .search-container i {
+            color: var(--text-light);
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        .search-container input {
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            width: 100%;
+            background: transparent;
+            color: var(--text);
+        }
+
+        /* TASK LIST */
+        .tasks-container {
+            padding: 0 16px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title span {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .task-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .task-card:active {
+            transform: scale(0.98);
+        }
+
+        .task-card.high {
+            border-left-color: var(--danger);
+        }
+
+        .task-card.medium {
+            border-left-color: var(--warning);
+        }
+
+        .task-card.low {
+            border-left-color: var(--success);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 1rem;
+            flex: 1;
+            margin-right: 12px;
+        }
+
+        .task-priority {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .task-desc {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .task-date {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--bg);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: var(--border);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--card);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-light);
+            text-decoration: none;
+            flex: 1;
+            padding: 8px;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 99;
+            transition: all 0.2s;
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+            background: var(--primary-dark);
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .radio-option {
+            flex: 1;
+            text-align: center;
+        }
+
+        .radio-input {
+            display: none;
+        }
+
+        .radio-label {
+            display: block;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .radio-input:checked + .radio-label {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            flex: 1;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:active {
+            background: var(--primary-dark);
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:active {
+            background: var(--bg);
+        }
+
+        /* UTILITIES */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-1 { margin-bottom: 4px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-3 { margin-bottom: 16px; }
+        .mb-4 { margin-bottom: 24px; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="app-title">TaskFlow</div>
+        <div class="user-avatar">A</div>
+    </header>
+
+    <!-- STATS -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-icon" style="background: rgba(67, 97, 238, 0.1); color: var(--primary);">
+                <i class="bi bi-list-task"></i>
+            </div>
+            <div class="stat-count" id="totalTasks">0</div>
+            <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-count" id="completedTasks">0</div>
+            <div class="stat-label">Selesai</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                <i class="bi bi-clock"></i>
+            </div>
+            <div class="stat-count" id="pendingTasks">0</div>
+            <div class="stat-label">Pending</div>
+        </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-box">
+        <div class="search-container">
+            <i class="bi bi-search"></i>
+            <input type="text" id="searchInput" placeholder="Cari task..." oninput="app.searchTasks()">
+        </div>
+    </div>
+
+    <!-- TASK LISTS -->
+    <div class="tasks-container">
+        <div class="section-title">
+            Hari Ini <span id="todayCount">0 tasks</span>
+        </div>
+        <div class="task-list" id="todayTasks">
+            <!-- Today tasks injected via JS -->
+        </div>
+
+        <div class="section-title">
+            Mendatang <span id="upcomingCount">0 tasks</span>
+        </div>
+        <div class="task-list" id="upcomingTasks">
+            <!-- Upcoming tasks injected via JS -->
+        </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="empty-state hidden">
+        <i class="bi bi-clipboard-check"></i>
+        <h3>Tidak ada task</h3>
+        <p>Tambahkan task baru dengan tombol + di bawah</p>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" onclick="app.openModal()">
+        <i class="bi bi-plus"></i>
+    </button>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <a class="nav-item active">
+            <i class="bi bi-house"></i>
+            <span>Home</span>
+        </a>
+        <a class="nav-item">
+            <i class="bi bi-calendar"></i>
+            <span>Kalender</span>
+        </a>
+        <a class="nav-item">
+            <i class="bi bi-bell"></i>
+            <span>Notif</span>
+        </a>
+        <a class="nav-item">
+            <i class="bi bi-gear"></i>
+            <span>Setting</span>
+        </a>
+    </nav>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Tambah Task Baru</h3>
+                <button class="modal-close" onclick="app.closeModal()">&times;</button>
+            </div>
+            
+            <form id="taskForm" onsubmit="app.saveTask(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="taskId">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Judul Task</label>
+                        <input type="text" class="form-control" id="taskTitle" placeholder="Apa yang perlu dilakukan?" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Deskripsi</label>
+                        <textarea class="form-control" id="taskDesc" rows="3" placeholder="Detail task..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Prioritas</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="priority" id="low" value="low" class="radio-input" checked>
+                                <label for="low" class="radio-label">Rendah</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="priority" id="medium" value="medium" class="radio-input">
+                                <label for="medium" class="radio-label">Sedang</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="priority" id="high" value="high" class="radio-input">
+                                <label for="high" class="radio-label">Tinggi</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tanggal</label>
+                        <input type="date" class="form-control" id="taskDate" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="app.closeModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const app = {
+            tasks: [
+                { 
+                    id: 1, 
+                    title: "Meeting dengan tim", 
+                    desc: "Presentasi progress proyek Q3", 
+                    priority: "high", 
+                    date: new Date().toISOString().split('T')[0], 
+                    completed: false 
+                },
+                { 
+                    id: 2, 
+                    title: "Belanja bulanan", 
+                    desc: "Beli bahan makanan mingguan", 
+                    priority: "medium", 
+                    date: new Date().toISOString().split('T')[0], 
+                    completed: false 
+                },
+                { 
+                    id: 3, 
+                    title: "Olahraga pagi", 
+                    desc: "Jogging 30 menit", 
+                    priority: "low", 
+                    date: new Date().toISOString().split('T')[0], 
+                    completed: true 
+                },
+                { 
+                    id: 4, 
+                    title: "Submit laporan", 
+                    desc: "Kirim laporan keuangan akhir bulan", 
+                    priority: "high", 
+                    date: new Date(Date.now() + 86400000).toISOString().split('T')[0], 
+                    completed: false 
+                },
+                { 
+                    id: 5, 
+                    title: "Perbaiki bug", 
+                    desc: "Fix bug di halaman login", 
+                    priority: "medium", 
+                    date: new Date(Date.now() + 172800000).toISOString().split('T')[0], 
+                    completed: false 
+                }
+            ],
+
+            init() {
+                // Set default date to today
+                document.getElementById('taskDate').value = new Date().toISOString().split('T')[0];
+                
+                this.renderTasks();
+                this.updateStats();
+                
+                // Set up today's date display
+                const today = new Date();
+                const options = { weekday: 'long', day: 'numeric', month: 'long' };
+                // document.getElementById('todayDate').textContent = today.toLocaleDateString('id-ID', options);
+            },
+
+            renderTasks() {
+                const today = new Date().toISOString().split('T')[0];
+                const todayTasks = this.tasks.filter(task => task.date === today && !task.completed);
+                const upcomingTasks = this.tasks.filter(task => task.date > today && !task.completed);
+                const completedTasks = this.tasks.filter(task => task.completed);
+                
+                // Today tasks
+                const todayContainer = document.getElementById('todayTasks');
+                todayContainer.innerHTML = '';
+                
+                if (todayTasks.length > 0) {
+                    todayTasks.forEach(task => {
+                        todayContainer.appendChild(this.createTaskCard(task));
+                    });
+                } else {
+                    todayContainer.innerHTML = '<div class="empty-state"><p>Belum ada task hari ini</p></div>';
+                }
+                
+                // Upcoming tasks
+                const upcomingContainer = document.getElementById('upcomingTasks');
+                upcomingContainer.innerHTML = '';
+                
+                if (upcomingTasks.length > 0) {
+                    upcomingTasks.forEach(task => {
+                        upcomingContainer.appendChild(this.createTaskCard(task));
+                    });
+                } else {
+                    upcomingContainer.innerHTML = '<div class="empty-state"><p>Belum ada task mendatang</p></div>';
+                }
+                
+                // Update counts
+                document.getElementById('todayCount').textContent = `${todayTasks.length} task`;
+                document.getElementById('upcomingCount').textContent = `${upcomingTasks.length} task`;
+                
+                // Show/hide empty state
+                const emptyState = document.getElementById('emptyState');
+                if (this.tasks.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                }
+            },
+
+            createTaskCard(task) {
+                const card = document.createElement('div');
+                card.className = `task-card ${task.priority}`;
+                card.dataset.id = task.id;
+                
+                const priorityText = {
+                    'high': 'Tinggi',
+                    'medium': 'Sedang', 
+                    'low': 'Rendah'
+                };
+                
+                const priorityClass = {
+                    'high': 'priority-high',
+                    'medium': 'priority-medium',
+                    'low': 'priority-low'
+                };
+                
+                // Format date
+                const dateObj = new Date(task.date);
+                const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short'
+                });
+                
+                card.innerHTML = `
+                    <div class="task-header">
+                        <div class="task-title">${task.title}</div>
+                        <span class="task-priority ${priorityClass[task.priority]}">${priorityText[task.priority]}</span>
+                    </div>
+                    <div class="task-desc">${task.desc}</div>
+                    <div class="task-footer">
+                        <div class="task-date">
+                            <i class="bi bi-calendar"></i>
+                            ${formattedDate}
+                        </div>
+                        <div class="task-actions">
+                            <button class="action-btn" onclick="app.toggleComplete(${task.id})">
+                                <i class="bi ${task.completed ? 'bi-arrow-counterclockwise' : 'bi-check'}"></i>
+                            </button>
+                            <button class="action-btn" onclick="app.editTask(${task.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="action-btn" onclick="app.deleteTask(${task.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                return card;
+            },
+
+            updateStats() {
+                const total = this.tasks.length;
+                const completed = this.tasks.filter(task => task.completed).length;
+                const pending = this.tasks.filter(task => !task.completed).length;
+                
+                document.getElementById('totalTasks').textContent = total;
+                document.getElementById('completedTasks').textContent = completed;
+                document.getElementById('pendingTasks').textContent = pending;
+            },
+
+            searchTasks() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                
+                if (!searchTerm) {
+                    this.renderTasks();
+                    return;
+                }
+                
+                const filtered = this.tasks.filter(task => 
+                    task.title.toLowerCase().includes(searchTerm) ||
+                    task.desc.toLowerCase().includes(searchTerm)
+                );
+                
+                // Show all filtered tasks
+                const todayContainer = document.getElementById('todayTasks');
+                const upcomingContainer = document.getElementById('upcomingTasks');
+                
+                todayContainer.innerHTML = '';
+                upcomingContainer.innerHTML = '';
+                
+                if (filtered.length > 0) {
+                    filtered.forEach(task => {
+                        if (task.date === new Date().toISOString().split('T')[0] && !task.completed) {
+                            todayContainer.appendChild(this.createTaskCard(task));
+                        } else if (task.date > new Date().toISOString().split('T')[0] && !task.completed) {
+                            upcomingContainer.appendChild(this.createTaskCard(task));
+                        }
+                    });
+                    
+                    if (todayContainer.children.length === 0) {
+                        todayContainer.innerHTML = '<div class="empty-state"><p>Tidak ada task hari ini</p></div>';
+                    }
+                    
+                    if (upcomingContainer.children.length === 0) {
+                        upcomingContainer.innerHTML = '<div class="empty-state"><p>Tidak ada task mendatang</p></div>';
+                    }
+                    
+                    document.getElementById('todayCount').textContent = `${todayContainer.children.length} task`;
+                    document.getElementById('upcomingCount').textContent = `${upcomingContainer.children.length} task`;
+                } else {
+                    todayContainer.innerHTML = '<div class="empty-state"><p>Tidak ditemukan</p></div>';
+                    upcomingContainer.innerHTML = '';
+                }
+            },
+
+            openModal(editId = null) {
+                const modal = document.getElementById('modalOverlay');
+                const title = document.getElementById('modalTitle');
+                const form = document.getElementById('taskForm');
+                
+                form.reset();
+                document.getElementById('taskDate').value = new Date().toISOString().split('T')[0];
+                
+                if (editId) {
+                    const task = this.tasks.find(t => t.id === editId);
+                    if (task) {
+                        title.textContent = 'Edit Task';
+                        document.getElementById('taskId').value = task.id;
+                        document.getElementById('taskTitle').value = task.title;
+                        document.getElementById('taskDesc').value = task.desc;
+                        document.querySelector(`input[name="priority"][value="${task.priority}"]`).checked = true;
+                        document.getElementById('taskDate').value = task.date;
+                    }
+                } else {
+                    title.textContent = 'Tambah Task Baru';
+                    document.getElementById('taskId').value = '';
+                    document.querySelector('input[name="priority"][value="low"]').checked = true;
+                }
+                
+                modal.classList.add('active');
+            },
+
+            closeModal() {
+                document.getElementById('modalOverlay').classList.remove('active');
+            },
+
+            saveTask(event) {
+                event.preventDefault();
+                
+                const id = document.getElementById('taskId').value;
+                const title = document.getElementById('taskTitle').value;
+                const desc = document.getElementById('taskDesc').value;
+                const priority = document.querySelector('input[name="priority"]:checked').value;
+                const date = document.getElementById('taskDate').value;
+                
+                if (id) {
+                    // Update task
+                    const index = this.tasks.findIndex(t => t.id === parseInt(id));
+                    if (index !== -1) {
+                        this.tasks[index] = { ...this.tasks[index], title, desc, priority, date };
+                    }
+                } else {
+                    // Add new task
+                    const newId = this.tasks.length > 0 ? Math.max(...this.tasks.map(t => t.id)) + 1 : 1;
+                    this.tasks.unshift({
+                        id: newId,
+                        title,
+                        desc,
+                        priority,
+                        date,
+                        completed: false
+                    });
+                }
+                
+                this.closeModal();
+                this.renderTasks();
+                this.updateStats();
+            },
+
+            editTask(id) {
+                this.openModal(id);
+            },
+
+            deleteTask(id) {
+                if (confirm('Hapus task ini?')) {
+                    this.tasks = this.tasks.filter(task => task.id !== id);
+                    this.renderTasks();
+                    this.updateStats();
+                }
+            },
+
+            toggleComplete(id) {
+                const task = this.tasks.find(t => t.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    this.renderTasks();
+                    this.updateStats();
+                }
+            }
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => app.init());
+        
+        // Close modal when clicking outside
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modalOverlay')) {
+                app.closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
